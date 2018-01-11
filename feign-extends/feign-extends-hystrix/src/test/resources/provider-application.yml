@@ -1,0 +1,30 @@
+server:
+  port: 8111
+spring:
+  application:
+    name: test-server
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 192.168.31.253
+          defaultBrokerPort: 9092
+          zkNodes: 192.168.31.253
+          defaultZkPort: 2181
+          autoCreateTopics: false
+      default:
+        group: ${spring.application.name}
+        contentType: application/json;charset=UTF-8
+
+feign:
+  hystrix:
+    enabled: true
+
+eureka:
+  instance:
+    # hostname: localhost
+    preferIpAddress: true
+
+  client:
+    serviceUrl:
+      defaultZone: http://ek:99aa!@localhost:8889/eureka/

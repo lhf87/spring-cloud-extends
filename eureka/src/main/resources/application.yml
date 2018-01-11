@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: eureka-server
+
+server:
+  port: 8889
+
+security:
+  user:
+    name: ek
+    password: 99aa!
+
+eureka:
+  instance:
+    preferIpAddress: true
+  server:
+    eviction-interval-timer-in-ms: 5000
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://ek:99aa!@localhost:${server.port}/eureka/
