@@ -9,21 +9,19 @@ import com.lhf.feign.hystrix.template.RetryInJVMTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.binding.BinderAwareChannelResolver;
 import org.springframework.cloud.stream.binding.BindingService;
 import org.springframework.cloud.stream.binding.BindingTargetFactory;
+import org.springframework.cloud.stream.converter.CompositeMessageConverterFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
 
 /**
  * Created on 2018/1/6.
  */
 
 @Configuration
-public class FeignHystrixProxyConfiguration {
+public class FeignHystrixProxyConfigure {
 
     @Bean
     public HystrixFallbackTemplate.Default getTemplateDefault() {
@@ -56,13 +54,11 @@ public class FeignHystrixProxyConfiguration {
 
         @Bean
         public FeignHystrixStreamInitializer importFeignHystrixStreamInitializer(
-                @Lazy BinderAwareChannelResolver binderAwareChannelResolver,
-                @Lazy MessageHandlerMethodFactory messageHandlerMethodFactory,
+                CompositeMessageConverterFactory converterFactory,
                 FeignHystrixStreamChannelFactory channelFactory,
                 FallbackMessageResolver messageResolver) {
             return new FeignHystrixStreamInitializer(
-                    binderAwareChannelResolver,
-                    messageHandlerMethodFactory,
+                    converterFactory,
                     channelFactory,
                     messageResolver,
                     serviceName);

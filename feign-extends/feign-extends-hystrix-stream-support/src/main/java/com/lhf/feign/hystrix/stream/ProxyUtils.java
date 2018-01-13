@@ -17,11 +17,11 @@ public class ProxyUtils {
         if(Proxy.isProxyClass(instance.getClass())) {
             try {
                 Field handlerField = ReflectionUtils.findField(instance.getClass().getSuperclass(), "h");
-                handlerField.setAccessible(true);
+                ReflectionUtils.makeAccessible(handlerField);
                 InvocationHandler feignInvocationHandler = (InvocationHandler)handlerField.get(instance);
 
                 Field targetField = ReflectionUtils.findField(feignInvocationHandler.getClass(), "target");
-                targetField.setAccessible(true);
+                ReflectionUtils.makeAccessible(targetField);
                 Target target = (Target)targetField.get(feignInvocationHandler);
 
                 return target;

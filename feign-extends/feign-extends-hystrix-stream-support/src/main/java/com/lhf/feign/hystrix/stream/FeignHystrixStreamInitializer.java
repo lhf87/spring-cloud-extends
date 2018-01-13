@@ -3,20 +3,14 @@ package com.lhf.feign.hystrix.stream;
 import feign.Target;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cloud.stream.converter.CompositeMessageConverterFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.integration.handler.AbstractReplyProducingMessageHandler;
+import org.springframework.integration.handler.AbstractMessageHandler;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.SubscribableChannel;
-import org.springframework.messaging.core.DestinationResolver;
-import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
-import org.springframework.messaging.handler.invocation.InvocableHandlerMethod;
+import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Method;
 
 /**
  * Created on 2018/1/6.
@@ -26,9 +20,7 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
 
     private String serviceName;
 
-    private MessageHandlerMethodFactory messageHandlerMethodFactory;
-
-    private DestinationResolver<MessageChannel> binderAwareChannelResolver;
+    private CompositeMessageConverterFactory converterFactory;
 
     private FeignHystrixStreamChannelFactory channelFactory;
 
@@ -36,16 +28,15 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
 
     private ApplicationContext context;
 
-    public FeignHystrixStreamInitializer(DestinationResolver<MessageChannel> binderAwareChannelResolver,
-                                         MessageHandlerMethodFactory messageHandlerMethodFactory,
+    public FeignHystrixStreamInitializer(CompositeMessageConverterFactory converterFactory,
                                          FeignHystrixStreamChannelFactory channelFactory,
                                          FallbackMessageResolver messageResolver,
                                          String serviceName) {
-        Assert.notNull(binderAwareChannelResolver, "Destination resolver cannot be null");
-        Assert.notNull(messageHandlerMethodFactory, "Message handler method factory cannot be null");
+        Assert.notNull(converterFactory, "converter factory cannot be null");
+        Assert.notNull(channelFactory, "channel factory cannot be null");
+        Assert.notNull(messageResolver, "messageResolver cannot be null");
         Assert.hasText(serviceName, "ServiceName cannot be empty");
-        this.binderAwareChannelResolver = binderAwareChannelResolver;
-        this.messageHandlerMethodFactory = messageHandlerMethodFactory;
+        this.converterFactory = converterFactory;
         this.channelFactory = channelFactory;
         this.messageResolver = messageResolver;
         this.serviceName = serviceName;
@@ -72,22 +63,12 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
     }
 
     private void subscribeChannelMessage() {
-        Method messageHandle = ReflectionUtils.findMethod(
-            FallbackMessageResolver.class
-            , "handleMessage"
-            , FallbackMessageResolver.FallbackMessage.class);
+        SubscribableChannel channel = (SubscribableChannel)channelFactory.getInputChannel(serviceName);
 
-        final InvocableHandlerMethod invocableHandlerMethod = messageHandlerMethodFactory
-                .createInvocableHandlerMethod(messageResolver, messageHandle);
+        StreamListenerMessageHandler listenerMessageHandler =
+                new StreamListenerMessageHandler(converterFactory, messageResolver);
 
-        SubscribableChannel channel =
-                (SubscribableChannel)channelFactory.getInputChannel(serviceName);
-
-        StreamListenerMessageHandler handler = new StreamListenerMessageHandler(invocableHandlerMethod);
-        handler.setApplicationContext(context);
-        handler.setChannelResolver(binderAwareChannelResolver);
-        handler.afterPropertiesSet();
-        channel.subscribe(handler);
+        channel.subscribe(listenerMessageHandler);
     }
 
     private String checkServiceName(String name) {
@@ -104,32 +85,30 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
         return serviceName;
     }
 
-    private final class StreamListenerMessageHandler extends AbstractReplyProducingMessageHandler {
+    private final class StreamListenerMessageHandler extends AbstractMessageHandler {
 
-        private final InvocableHandlerMethod invocableHandlerMethod;
+        private CompositeMessageConverterFactory converterFactory;
 
-        private StreamListenerMessageHandler(InvocableHandlerMethod invocableHandlerMethod) {
-            this.invocableHandlerMethod = invocableHandlerMethod;
+        private FallbackMessageResolver messageResolver;
+
+        public StreamListenerMessageHandler(CompositeMessageConverterFactory converterFactory,
+                                            FallbackMessageResolver messageResolver) {
+            this.converterFactory = converterFactory;
+            this.messageResolver = messageResolver;
         }
 
         @Override
-        protected boolean shouldCopyRequestHeaders() {
-            return false;
-        }
+        protected void handleMessageInternal(Message<?> message) throws Exception {
+            FallbackMessageResolver.FallbackMessage fallbackMessage =
+                    (FallbackMessageResolver.FallbackMessage) converterFactory.getMessageConverterForAllRegistered()
+                            .fromMessage(message, FallbackMessageResolver.FallbackMessage.class);
 
-        @Override
-        protected Object handleRequestMessage(Message<?> requestMessage) {
-            try {
-                return this.invocableHandlerMethod.invoke(requestMessage);
-            }
-            catch (Exception e) {
-                if (e instanceof MessagingException) {
-                    throw (MessagingException) e;
-                }
-                else {
-                    throw new MessagingException(requestMessage,
-                            "Exception thrown while invoking " + this.invocableHandlerMethod.getShortLogMessage(), e);
-                }
+            if(null != fallbackMessage) {
+                messageResolver.handleMessage(fallbackMessage);
+            } else {
+                throw new MessageConversionException(message, "Cannot convert from [" +
+                        message.getPayload().getClass().getName() + "] to [" +
+                        FallbackMessageResolver.FallbackMessage.class.getName() + "] for " + message);
             }
         }
     }

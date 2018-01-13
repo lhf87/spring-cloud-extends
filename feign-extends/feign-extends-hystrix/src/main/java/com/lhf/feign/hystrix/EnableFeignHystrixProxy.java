@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({FeignHystrixProxyRegistrar.class, FeignHystrixProxyConfiguration.class})
+@Import({FeignHystrixProxyRegistrar.class, FeignHystrixProxyConfigure.class})
 public @interface EnableFeignHystrixProxy {
 
     String[] value() default {};
