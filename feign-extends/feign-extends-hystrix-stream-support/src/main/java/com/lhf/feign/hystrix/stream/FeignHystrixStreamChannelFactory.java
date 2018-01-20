@@ -38,11 +38,10 @@ public class FeignHystrixStreamChannelFactory {
     }
 
     public MessageChannel getInputChannel(String serviceName) {
-        String channelName = getFallbackChannelName(serviceName);
         if(null != inputChannel) {
             return inputChannel;
         }
-
+        String channelName = getFallbackChannelName(serviceName);
         inputChannel = channelFactory.createInput(channelName);
         bindingService.bindConsumer(inputChannel, channelName);
         return inputChannel;
@@ -54,9 +53,14 @@ public class FeignHystrixStreamChannelFactory {
             return outputChannels.get(channelName);
         }
 
-        MessageChannel output = channelFactory.createOutput(channelName);
-        bindingService.bindProducer(output, channelName);
-        outputChannels.putIfAbsent(channelName, output);
+        MessageChannel output = null;
+        synchronized (FeignHystrixStreamChannelFactory.class) {
+            if(!outputChannels.containsKey(channelName)) {
+                output = channelFactory.createOutput(channelName);
+                bindingService.bindProducer(output, channelName);
+                outputChannels.putIfAbsent(channelName, output);
+            }
+        }
 
         return output;
     }

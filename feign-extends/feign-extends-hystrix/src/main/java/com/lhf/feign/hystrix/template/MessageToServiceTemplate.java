@@ -6,6 +6,7 @@ import com.lhf.feign.hystrix.stream.ProxyUtils;
 import feign.Target;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
@@ -55,7 +56,11 @@ public class MessageToServiceTemplate extends HystrixFallbackTemplate.AbstractTe
 
         Target target = ProxyUtils.getFeignTarget(instance);
         if(null != target) {
-            messageResolver.sendMessage(channelFactory.getOutputChannel(target.name()), message);
+            MessageChannel channel = channelFactory.getOutputChannel(target.name());
+            if(null == channel) {
+                throw new RuntimeException("not found channel for target " + target.name());
+            }
+            messageResolver.sendMessage(channel, message);
         }
 
         logger.info("method fallback , msg to service: {}", message);

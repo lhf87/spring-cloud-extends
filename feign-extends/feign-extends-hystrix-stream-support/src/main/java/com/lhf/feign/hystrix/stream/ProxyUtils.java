@@ -26,7 +26,7 @@ public class ProxyUtils {
 
                 return target;
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
