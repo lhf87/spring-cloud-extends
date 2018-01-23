@@ -1,6 +1,6 @@
 package com.lhf.feign.hystrix.template;
 
-import com.lhf.feign.hystrix.stream.FallbackMessageResolver;
+import com.lhf.feign.hystrix.stream.FallbackMessageProcessor;
 import com.lhf.feign.hystrix.stream.FeignHystrixStreamChannelFactory;
 import com.lhf.feign.hystrix.stream.ProxyUtils;
 import feign.Target;
@@ -21,19 +21,19 @@ public class MessageToServiceTemplate extends HystrixFallbackTemplate.AbstractTe
 
     private static final Logger logger = LoggerFactory.getLogger(MessageToServiceTemplate.class);
 
-    private FallbackMessageResolver messageResolver;
+    private FallbackMessageProcessor messageProcessor;
 
     private FeignHystrixStreamChannelFactory channelFactory;
 
-    public MessageToServiceTemplate(FallbackMessageResolver messageResolver,
+    public MessageToServiceTemplate(FallbackMessageProcessor messageProcessor,
                                     FeignHystrixStreamChannelFactory channelFactory) {
-        this.messageResolver = messageResolver;
+        this.messageProcessor = messageProcessor;
         this.channelFactory = channelFactory;
     }
 
     @Override
     public Object fallback(Object instance, Method method, Object[] args) {
-        FallbackMessageResolver.FallbackMessage message = new FallbackMessageResolver.FallbackMessage();
+        FallbackMessageProcessor.FallbackMessage message = new FallbackMessageProcessor.FallbackMessage();
         message.setArgs(args);
         message.setArgsTypes(Arrays.stream(args).map(arg -> arg.getClass().getName()).toArray(String[]::new));
         message.setTimestamp(System.currentTimeMillis());
@@ -43,8 +43,8 @@ public class MessageToServiceTemplate extends HystrixFallbackTemplate.AbstractTe
             throw new RuntimeException("feign method must have RequestMapping Annotation");
         }
 
-        FallbackMessageResolver.FallbackMessage.RequestMapping requestMapping =
-            new FallbackMessageResolver.FallbackMessage.RequestMapping()
+        FallbackMessageProcessor.FallbackMessage.RequestMapping requestMapping =
+            new FallbackMessageProcessor.FallbackMessage.RequestMapping()
                 .setName(rmAnnotation.name())
                 .setPath(rmAnnotation.path())
                 .setHeaders(rmAnnotation.headers())
@@ -60,7 +60,7 @@ public class MessageToServiceTemplate extends HystrixFallbackTemplate.AbstractTe
             if(null == channel) {
                 throw new RuntimeException("not found channel for target " + target.name());
             }
-            messageResolver.sendMessage(channel, message);
+            messageProcessor.sendMessage(channel, message);
         }
 
         logger.info("method fallback , msg to service: {}", message);

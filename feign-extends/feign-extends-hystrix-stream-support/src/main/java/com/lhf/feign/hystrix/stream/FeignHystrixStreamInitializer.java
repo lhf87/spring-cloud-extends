@@ -24,21 +24,21 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
 
     private FeignHystrixStreamChannelFactory channelFactory;
 
-    private FallbackMessageResolver messageResolver;
+    private FallbackMessageProcessor messageProcessor;
 
     private ApplicationContext context;
 
     public FeignHystrixStreamInitializer(CompositeMessageConverterFactory converterFactory,
                                          FeignHystrixStreamChannelFactory channelFactory,
-                                         FallbackMessageResolver messageResolver,
+                                         FallbackMessageProcessor messageProcessor,
                                          String serviceName) {
         Assert.notNull(converterFactory, "converter factory cannot be null");
         Assert.notNull(channelFactory, "channel factory cannot be null");
-        Assert.notNull(messageResolver, "messageResolver cannot be null");
+        Assert.notNull(messageProcessor, "messageProcessor cannot be null");
         Assert.hasText(serviceName, "ServiceName cannot be empty");
         this.converterFactory = converterFactory;
         this.channelFactory = channelFactory;
-        this.messageResolver = messageResolver;
+        this.messageProcessor = messageProcessor;
         this.serviceName = serviceName;
     }
 
@@ -66,7 +66,7 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
         SubscribableChannel channel = (SubscribableChannel)channelFactory.getInputChannel(serviceName);
 
         StreamListenerMessageHandler listenerMessageHandler =
-                new StreamListenerMessageHandler(converterFactory, messageResolver);
+                new StreamListenerMessageHandler(converterFactory, messageProcessor);
 
         channel.subscribe(listenerMessageHandler);
     }
@@ -89,26 +89,26 @@ public class FeignHystrixStreamInitializer implements ApplicationContextAware, I
 
         private CompositeMessageConverterFactory converterFactory;
 
-        private FallbackMessageResolver messageResolver;
+        private FallbackMessageProcessor messageProcessor;
 
         public StreamListenerMessageHandler(CompositeMessageConverterFactory converterFactory,
-                                            FallbackMessageResolver messageResolver) {
+                                            FallbackMessageProcessor messageProcessor) {
             this.converterFactory = converterFactory;
-            this.messageResolver = messageResolver;
+            this.messageProcessor = messageProcessor;
         }
 
         @Override
         protected void handleMessageInternal(Message<?> message) throws Exception {
-            FallbackMessageResolver.FallbackMessage fallbackMessage =
-                    (FallbackMessageResolver.FallbackMessage) converterFactory.getMessageConverterForAllRegistered()
-                            .fromMessage(message, FallbackMessageResolver.FallbackMessage.class);
+            FallbackMessageProcessor.FallbackMessage fallbackMessage =
+                    (FallbackMessageProcessor.FallbackMessage) converterFactory.getMessageConverterForAllRegistered()
+                            .fromMessage(message, FallbackMessageProcessor.FallbackMessage.class);
 
             if(null != fallbackMessage) {
-                messageResolver.handleMessage(fallbackMessage);
+                messageProcessor.receiveMessage(fallbackMessage);
             } else {
                 throw new MessageConversionException(message, "Cannot convert from [" +
                         message.getPayload().getClass().getName() + "] to [" +
-                        FallbackMessageResolver.FallbackMessage.class.getName() + "] for " + message);
+                        FallbackMessageProcessor.FallbackMessage.class.getName() + "] for " + message);
             }
         }
     }

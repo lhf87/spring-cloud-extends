@@ -11,6 +11,7 @@
     <modules>
         <module>feign-extends</module>
         <module>eureka</module>
+        <module>stream-extends</module>
     </modules>
 
     <parent>

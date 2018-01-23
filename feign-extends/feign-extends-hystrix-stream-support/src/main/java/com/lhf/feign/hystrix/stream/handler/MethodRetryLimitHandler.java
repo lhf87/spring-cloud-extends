@@ -1,6 +1,6 @@
 package com.lhf.feign.hystrix.stream.handler;
 
-import com.lhf.feign.hystrix.stream.FallbackMessageResolver;
+import com.lhf.feign.hystrix.stream.FallbackMessageProcessor;
 
 /**
  * Created on 2018/1/9.
@@ -9,7 +9,7 @@ import com.lhf.feign.hystrix.stream.FallbackMessageResolver;
 public class MethodRetryLimitHandler implements MessageHandler {
 
     @Override
-    public boolean checkMessage(FallbackMessageResolver.FallbackMessage message) {
+    public boolean checkMessage(FallbackMessageProcessor.FallbackMessage message) {
         throw new RuntimeException("not impl");
     }
 

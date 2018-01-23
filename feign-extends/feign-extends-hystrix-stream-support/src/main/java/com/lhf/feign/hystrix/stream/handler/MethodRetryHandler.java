@@ -1,6 +1,6 @@
 package com.lhf.feign.hystrix.stream.handler;
 
-import com.lhf.feign.hystrix.stream.FallbackMessageResolver;
+import com.lhf.feign.hystrix.stream.FallbackMessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class MethodRetryHandler implements MessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(MethodRetryHandler.class);
 
     @Override
-    public boolean checkMessage(FallbackMessageResolver.FallbackMessage message) {
+    public boolean checkMessage(FallbackMessageProcessor.FallbackMessage message) {
         if(message.getArgs().length != message.getArgsTypes().length) {
             return false;
         }

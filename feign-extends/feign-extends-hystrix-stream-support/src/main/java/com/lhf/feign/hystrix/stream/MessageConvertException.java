@@ -5,9 +5,9 @@ package com.lhf.feign.hystrix.stream;
  */
 public class MessageConvertException extends RuntimeException {
 
-    private FallbackMessageResolver.FallbackMessage message;
+    private FallbackMessageProcessor.FallbackMessage message;
 
-    public MessageConvertException(String msg, Throwable cause, FallbackMessageResolver.FallbackMessage message) {
+    public MessageConvertException(String msg, Throwable cause, FallbackMessageProcessor.FallbackMessage message) {
         super(msg, cause);
         this.message = message;
     }

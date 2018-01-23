@@ -22,13 +22,13 @@ import java.util.Map;
  */
 public class MessageConvertUtils {
 
-    public static HandleDetail convert(FallbackMessageResolver.FallbackMessage message, Object context) throws MessageConvertException {
+    public static HandleDetail convert(FallbackMessageProcessor.FallbackMessage message, Object context) throws MessageConvertException {
         if(!(context instanceof ApplicationContext)) {
             // 如果不是spring上下文也可以转换，现在暂时不实现
             return null;
         }
 
-        FallbackMessageResolver.FallbackMessage.RequestMapping requestMapping = message.getRequestMapping();
+        FallbackMessageProcessor.FallbackMessage.RequestMapping requestMapping = message.getRequestMapping();
 
         RequestMappingInfo.Builder builder = new RequestMappingBuilder();
         builder.mappingName(requestMapping.getName())

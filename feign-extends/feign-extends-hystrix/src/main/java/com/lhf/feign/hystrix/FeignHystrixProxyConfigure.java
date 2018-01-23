@@ -1,6 +1,6 @@
 package com.lhf.feign.hystrix;
 
-import com.lhf.feign.hystrix.stream.FallbackMessageResolver;
+import com.lhf.feign.hystrix.stream.FallbackMessageProcessor;
 import com.lhf.feign.hystrix.stream.FeignHystrixStreamChannelFactory;
 import com.lhf.feign.hystrix.stream.FeignHystrixStreamInitializer;
 import com.lhf.feign.hystrix.template.HystrixFallbackTemplate;
@@ -48,27 +48,27 @@ public class FeignHystrixProxyConfigure {
         }
 
         @Bean
-        public FallbackMessageResolver getMessageResolver(ApplicationContext applicationContext) {
-            return new FallbackMessageResolver(applicationContext);
+        public FallbackMessageProcessor getMessageResolver(ApplicationContext applicationContext) {
+            return new FallbackMessageProcessor(applicationContext);
         }
 
         @Bean
         public FeignHystrixStreamInitializer importFeignHystrixStreamInitializer(
                 CompositeMessageConverterFactory converterFactory,
                 FeignHystrixStreamChannelFactory channelFactory,
-                FallbackMessageResolver messageResolver) {
+                FallbackMessageProcessor messageProcessor) {
             return new FeignHystrixStreamInitializer(
                     converterFactory,
                     channelFactory,
-                    messageResolver,
+                    messageProcessor,
                     serviceName);
         }
 
         @Bean
         public MessageToServiceTemplate getFallbackByMessage(
-                FallbackMessageResolver messageResolver,
+                FallbackMessageProcessor messageProcessor,
                 FeignHystrixStreamChannelFactory channelFactory) {
-            return new MessageToServiceTemplate(messageResolver, channelFactory);
+            return new MessageToServiceTemplate(messageProcessor, channelFactory);
         }
     }
 

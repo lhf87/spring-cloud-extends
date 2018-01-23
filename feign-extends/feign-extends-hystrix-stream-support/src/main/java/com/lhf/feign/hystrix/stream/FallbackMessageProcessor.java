@@ -16,19 +16,19 @@ import java.util.Arrays;
  * Created on 2018/1/8.
  */
 
-public class FallbackMessageResolver {
+public class FallbackMessageProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(FallbackMessageResolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(FallbackMessageProcessor.class);
 
     private ApplicationContext context;
 
     private MessageHandler messageHandler = new MethodRetryHandler();
 
-    public FallbackMessageResolver(ApplicationContext applicationContext) {
+    public FallbackMessageProcessor(ApplicationContext applicationContext) {
         this.context = applicationContext;
     }
 
-    public void handleMessage(FallbackMessage message) {
+    public void receiveMessage(FallbackMessage message) {
         logger.info("receive fallback message: {}", message);
 
         if(messageHandler.checkMessage(message)) {
