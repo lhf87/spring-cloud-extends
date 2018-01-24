@@ -23,10 +23,10 @@ public class LogSucessListener extends ProducerListenerDelegate<byte[], byte[]> 
     public void onSuccess(String topic, Integer partition, byte[] key, byte[] value, RecordMetadata recordMetadata)
             throws DelegateException {
         Object payload = messageResolver.resolve(topic, value);
-        if(null == payload) {
-            logger.warn("message send success, but cannot resolve message");
+        if(null == payload || payload.getClass().isAssignableFrom(byte[].class)) {
+            logger.warn("{} message send success, but cannot resolve message", topic);
         } else {
-            logger.info("message send success, detail: {}", payload);
+            logger.info("{} message send success, detail: {}", topic, payload);
         }
     }
 
