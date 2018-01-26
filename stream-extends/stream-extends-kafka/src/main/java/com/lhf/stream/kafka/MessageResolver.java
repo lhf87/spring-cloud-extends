@@ -1,10 +1,10 @@
 package com.lhf.stream.kafka;
 
+import com.lhf.stream.kafka.codec.Codec;
 import org.springframework.cloud.stream.binder.EmbeddedHeadersMessageConverter;
 import org.springframework.cloud.stream.binder.MessageValues;
 import org.springframework.cloud.stream.converter.MessageConverterUtils;
 import org.springframework.core.serializer.support.SerializationFailedException;
-import org.springframework.integration.codec.Codec;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.Assert;

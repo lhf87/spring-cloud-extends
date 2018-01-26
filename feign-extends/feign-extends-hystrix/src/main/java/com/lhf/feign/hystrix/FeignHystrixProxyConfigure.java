@@ -48,7 +48,7 @@ public class FeignHystrixProxyConfigure {
         }
 
         @Bean
-        public FallbackMessageProcessor getMessageResolver(ApplicationContext applicationContext) {
+        public FallbackMessageProcessor getMessageProcessor(ApplicationContext applicationContext) {
             return new FallbackMessageProcessor(applicationContext);
         }
 
@@ -65,7 +65,7 @@ public class FeignHystrixProxyConfigure {
         }
 
         @Bean
-        public MessageToServiceTemplate getFallbackByMessage(
+        public MessageToServiceTemplate getMessageToServiceTemplate(
                 FallbackMessageProcessor messageProcessor,
                 FeignHystrixStreamChannelFactory channelFactory) {
             return new MessageToServiceTemplate(messageProcessor, channelFactory);

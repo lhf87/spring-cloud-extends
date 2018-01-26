@@ -14,7 +14,7 @@ spring:
           autoCreateTopics: false
       default:
         group: ${spring.application.name}
-        contentType: application/json;charset=UTF-8
+#        contentType: application/json;charset=UTF-8
 #      bindings:
 #        j_no-server_fallback_message:
 #          consumer:

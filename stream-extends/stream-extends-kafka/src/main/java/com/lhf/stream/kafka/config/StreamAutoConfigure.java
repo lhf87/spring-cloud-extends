@@ -2,8 +2,10 @@ package com.lhf.stream.kafka.config;
 
 import com.lhf.stream.kafka.MessageResolver;
 import com.lhf.stream.kafka.ProducerListenerBase;
+import com.lhf.stream.kafka.codec.IntegrationCodecProxy;
 import com.lhf.stream.kafka.delegate.LogSucessListener;
 import com.lhf.stream.kafka.delegate.ProducerListenerDelegate;
+import com.lhf.stream.kafka.enhance.ChannelBindingFactoryBeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,7 +21,7 @@ import java.util.Collection;
  */
 
 @Configuration
-public class ProducerAutoConfigure {
+public class StreamAutoConfigure {
 
     @Bean
     @ConditionalOnMissingBean(ProducerListener.class)
@@ -34,12 +36,18 @@ public class ProducerAutoConfigure {
     @Bean
     @ConditionalOnBean(ProducerListenerBase.class)
     public MessageResolver springCloudStreamMessageResolver(Codec codec) {
-        return new MessageResolver(codec);
+        IntegrationCodecProxy proxyCodec = new IntegrationCodecProxy(codec);
+        return new MessageResolver(proxyCodec);
     }
 
     @Bean
     @ConditionalOnProperty(value = "spring.cloud.stream.kafka.log-sucess", matchIfMissing = true)
     public LogSucessListener getSucessLogListener(MessageResolver messageResolver) {
         return new LogSucessListener(messageResolver);
+    }
+
+    @Bean
+    public ChannelBindingFactoryBeanPostProcessor getChannelBindingFactoryBeanPostProcessor() {
+        return new ChannelBindingFactoryBeanPostProcessor();
     }
 }

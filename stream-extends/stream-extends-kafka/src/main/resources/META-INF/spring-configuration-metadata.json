@@ -4,7 +4,7 @@
       "name": "spring.cloud.stream.kafka.log-sucess",
       "type": "java.lang.Boolean",
       "description": "是否打印发送成功日志",
-      "sourceType": "com.lhf.stream.kafka.config.ProducerAutoConfigure"
+      "sourceType": "com.lhf.stream.kafka.config.StreamAutoConfigure"
     }
   ]
 }

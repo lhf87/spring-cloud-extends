@@ -31,7 +31,7 @@ public class FeignHystrixStreamChannelFactory {
     private static final String CHANNEL_SUFFIX = "_fallback_message";
 
     public FeignHystrixStreamChannelFactory(BindingTargetFactory bindingTargetFactory, BindingService bindingService) {
-        Assert.isAssignable(bindingTargetFactory.getClass(), SubscribableChannelBindingTargetFactory.class);
+        Assert.notNull(bindingTargetFactory.getClass(), "bindingTargetFactory must not null");
         Assert.notNull(bindingService, "bindingService must not null");
         this.channelFactory = (SubscribableChannelBindingTargetFactory)bindingTargetFactory;
         this.bindingService = bindingService;
