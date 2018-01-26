@@ -17,7 +17,7 @@
 对于未编码实现的fallback方法执行模板方法(打印日志，或者重试，或者其他操作) </br>
 [打印日志的demo](https://github.com/lhf87/spring-cloud-extends/blob/master/feign-extends/feign-extends-hystrix/src/test/java/com/lhf/test/feign/app1/controller/FeignController.java)
 
-### feign-extends-hystrix-stream-support
+### feign-extends-hystrix-stream-support [fallback的stream支持]
 ```maven
 <dependency>
     <groupId>com.lhf</groupId>
