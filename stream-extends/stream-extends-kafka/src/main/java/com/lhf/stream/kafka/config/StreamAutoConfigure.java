@@ -46,7 +46,12 @@ public class StreamAutoConfigure {
         return new LogSucessListener(messageResolver);
     }
 
-    @Bean
+    /**
+     * 对于某output channel的contentType=application/octet-stream的时候 一般是用于给非java的消费方发送字节流消息
+     * 对于javabean需要进行字节转码，暂时使用jackson序列化 {@link com.lhf.stream.kafka.enhance.MessageChannelWapper#preEncodeMessage}
+     * 一般情况下不需要channelWapper
+     */
+    //@Bean
     public ChannelBindingFactoryBeanPostProcessor getChannelBindingFactoryBeanPostProcessor() {
         return new ChannelBindingFactoryBeanPostProcessor();
     }
