@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Created on 2018/1/24.
- * 如果某个channel的contentType为application/octet-stream, 则对消息体内对象预处理成byte[]
+ * 如果某个发送端channel的contentType为application/octet-stream, 则对消息体内对象预处理成byte[]
  */
 public class MessageChannelWapper implements SubscribableChannel {
 
@@ -62,20 +62,10 @@ public class MessageChannelWapper implements SubscribableChannel {
     }
 
     private Object preDecodeMessage(byte[] payload) {
-        return null;
-    }
-
-    class MessageHandlerWapper implements MessageHandler {
-
-        private MessageHandler handler;
-
-        MessageHandlerWapper(MessageHandler handler) {
-            this.handler = handler;
-        }
-
-        @Override
-        public void handleMessage(Message<?> message) throws MessagingException {
-
-        }
+        /**
+         * stream会用内置header转换器对payload进行一次解析
+         * {@link org.springframework.cloud.stream.binder.EmbeddedHeadersMessageConverter#embedHeaders}
+         */
+        throw new RuntimeException("no need to be impl");
     }
 }
