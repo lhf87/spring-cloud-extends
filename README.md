@@ -30,4 +30,7 @@ Provider和Consumer端引入上面两个module，可以使用`MessageToServiceTe
 [mq-fallback的demo](https://github.com/lhf87/spring-cloud-extends/tree/master/feign-extends/feign-extends-hystrix/src/test/java/com/lhf/test/feign)
 (启动app1，调用`http://localhost:8111/hello-stream`，启动app2 会消费app1该方法里的feign调用)
 
-### stream-extends-kafka
+### stream-extends-kafka [stream的kakfa组件扩展]
+消息发送是异步的，不是每条消息都会立刻发送，会将消息存到buffer后续一次性发送。常规的使用方法都没有等到发送回调，业务方法就完结了，即使消息发送异常也没处理，默认的发送成功后也没有打印发送成功日志。</br>
+现在暂时只做了ProducerListener，监听发送端消息回调,处理回调(打印日志) </br>
+后续增加失败的重试
